@@ -6,9 +6,17 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hookform/resolvers": "^2.9.8",
+    "firebase": "^9.9.4",
     "next": "latest",
+    "next-themes": "^0.2.0",
     "react": "18.1.0",
-    "react-dom": "18.1.0"
+    "react-dom": "18.1.0",
+    "react-hook-form": "^7.35.0",
+    "react-html-table-to-excel": "^2.0.0",
+    "react-icons": "^4.4.0",
+    "sweetalert2": "^11.4.32",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/node": "17.0.35",
