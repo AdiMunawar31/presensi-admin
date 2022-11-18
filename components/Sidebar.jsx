@@ -69,7 +69,7 @@ const Sidebar = () => {
 							</Link>
 						</li>
 
-						{user.email == 'munawar.adi31@gmail.com' ? (
+						{user.email == 'munawar.adi31@gmail.com' || user.email == 'noegraha858@gmail.com' ? (
 							<li>
 								<Link href='/absensi'>
 									{router.pathname !== '/absensi' ? (

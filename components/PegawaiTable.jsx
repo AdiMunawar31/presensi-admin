@@ -67,8 +67,8 @@ const PegawaiTable = () => {
 										<th className='px-4 py-3'>Nama</th>
 										<th className='px-4 py-3'>NIK</th>
 										<th className='px-4 py-3'>Email</th>
-										<th className='px-4 py-3'>Role</th>
-										<th className='px-4 py-3'>Pekerjaan</th>
+										{/* <th className='px-4 py-3'>Role</th> */}
+										<th className='px-4 py-3'>Jabatan</th>
 									</tr>
 								</thead>
 								<tbody className='bg-white divide-y dark:divide-gray-700 dark:bg-gray-800'>
@@ -100,11 +100,11 @@ const PegawaiTable = () => {
 												</td>
 												<td className='px-4 py-3 text-sm'>{emp.nik}</td>
 												<td className='px-4 py-3 text-sm'>{emp.email}</td>
-												<td className='px-4 py-3 text-xs'>
+												{/* <td className='px-4 py-3 text-xs'>
 													<span className='px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100'>
 														{emp.role}
 													</span>
-												</td>
+												</td> */}
 												<td className='px-4 py-3 text-sm'>{emp.pekerjaan}</td>
 											</tr>
 										);

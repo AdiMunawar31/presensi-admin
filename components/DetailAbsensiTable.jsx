@@ -196,7 +196,7 @@ const AbsensiTable = ({ uid }) => {
 	};
 
 	return (
-		<div className='mx-8 my-4 w-3/4 rounded-md bg-white dark:bg-gray-900 p-8 shadow-lg'>
+		<div className='my-4 mx-4 w-11/12 rounded-md bg-white dark:bg-gray-900 p-8 shadow-lg'>
 			<div className='block items-center justify-between pb-6 sm:flex '>
 				<div>
 					<h1 className='font-bold'>{employee.nama}</h1>
@@ -236,7 +236,8 @@ const AbsensiTable = ({ uid }) => {
 											<th className='px-6 py-3'>Keluar</th>
 											<th className='px-4 py-3'>Hadir</th>
 											<th className='px-4 py-3'>Tidak Hadir</th>
-											<th className='px-4 py-3'>Izin</th>
+											<th className='px-6 py-3'>Keterangan</th>
+											{/* <th className='px-4 py-3'>Izin</th> */}
 										</tr>
 									</thead>
 									<tbody className='bg-white divide-y dark:divide-gray-700 dark:bg-gray-800'>
@@ -244,7 +245,7 @@ const AbsensiTable = ({ uid }) => {
 											{
 												absen.masuk != null && absen.keluar != null ? (hadir += 1) : hadir;
 												absen.masuk == null && absen.keluar == null ? (tidakHadir += 1) : tidakHadir;
-												absen.masuk != null && absen.keluar == null ? (izin += 1) : izin;
+												// absen.masuk != null && absen.keluar == null ? (izin += 1) : izin;
 											}
 											return (
 												<tr
@@ -275,19 +276,24 @@ const AbsensiTable = ({ uid }) => {
 													</td>
 													<td className='px-4 py-3'>
 														<div className='ml-4 text-sm'>
-															<p>{absen.masuk != null && absen.keluar != null ? 1 : 0}</p>
+															<p>{absen.masuk != null && absen.keluar != null ? '1' : '0'}</p>
 														</div>
 													</td>
 													<td className='px-4 py-3'>
 														<div className='ml-8 text-sm'>
-															<p>{absen.masuk == null && absen.keluar == null ? 1 : 0}</p>
+															<p>{absen.masuk == null && absen.keluar == null ? '1' : '0'}</p>
 														</div>
 													</td>
-													<td className='px-4 py-3'>
+													<td className='px-6 py-3 text-sm font-semibold'>
+														<div>
+															<p>{absen.masuk != null && absen.masuk != '' ? absen.masuk.keterangan : 'Tidak Hadir'}</p>
+														</div>
+													</td>
+													{/* <td className='px-4 py-3'>
 														<div className='ml-2 text-sm'>
 															<p>{absen.masuk != null && absen.keluar == null ? 1 : 0}</p>
 														</div>
-													</td>
+													</td> */}
 												</tr>
 											);
 										})}
@@ -302,19 +308,24 @@ const AbsensiTable = ({ uid }) => {
 											</td>
 											<td className='px-4 py-3'>
 												<div className='ml-4 text-sm'>
-													<p>{hadir}</p>
+													<p>Hadir = {hadir}</p>
 												</div>
 											</td>
 											<td className='px-4 py-3'>
 												<div className='ml-8 text-sm'>
-													<p>{tidakHadir}</p>
+													<p>Tidak Hadir = {tidakHadir} </p>
 												</div>
 											</td>
 											<td className='px-4 py-3'>
+												<div className='ml-8 text-sm'>
+													<p>Izin = {izin} </p>
+												</div>
+											</td>
+											{/* <td className='px-4 py-3'>
 												<div className='ml-2 text-sm'>
 													<p>{izin}</p>
 												</div>
-											</td>
+											</td> */}
 										</tr>
 									</tbody>
 								</table>
