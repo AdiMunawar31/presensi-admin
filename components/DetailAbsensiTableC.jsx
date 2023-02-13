@@ -9,11 +9,12 @@ import { AiFillCheckCircle, AiFillCloseCircle } from 'react-icons/ai';
 import Loader from './Loader';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
+import { async } from '@firebase/util';
 
 const AbsensiTable = ({ uid }) => {
 	const [month, setMonth] = useState(new Date().getMonth());
 	const [year, setYear] = useState(new Date().getFullYear());
-	const daysInMonth = new Date(year, month + 1, 0).getDate();
+	// const [year, setYear] = useState(new Date().getFullYear());
 
 	const [absensi, setAbsensi] = useState([]);
 	const [employee, setEmployee] = useState([]);
@@ -31,11 +32,13 @@ const AbsensiTable = ({ uid }) => {
 	const bulan = date.getMonth();
 	const tanggal = date.getDate();
 	const hari = date.getDay();
-	let numBulan;
+	const daysInMonth = new Date(tahun, bulan + 1, 0).getDate();
 
 	const jam = date.getHours();
 
 	const now = `${bulan + 1}-${tanggal}-${tahun}`;
+	let numBulan;
+	let numHari;
 
 	switch (hari) {
 		case 0:
@@ -113,6 +116,7 @@ const AbsensiTable = ({ uid }) => {
 					absensi.push({ ...doc.data(), id: doc.id });
 				});
 				setAbsensi(absensi);
+				// console.log(absensi[0].id);
 				setIsLoading(false);
 			} else {
 				setAbsensi([]);
@@ -130,12 +134,23 @@ const AbsensiTable = ({ uid }) => {
 				setEmployee([]);
 			}
 		}
+
+		async function loopAbsensi() {
+			absensi.map((absen, i) => {
+				absen.masuk != null && absen.pulang != null ? hadir + 1 : hadir;
+				absen.masuk == null && absen.pulang == null ? tidakHadir + 1 : tidakHadir;
+				absen.masuk != null && absen.pulang == null ? izin + 1 : izin;
+				const num = absen.id.split('-');
+				numBulan = parseInt(num[0]);
+			});
+		}
+
 		fetchData();
 		fetchDataPegawai();
 	}, []);
 
 	const setAbsen = async (e) => {
-		if (jam > 13 && jam < 15) {
+		if (jam < 13 && jam < 25) {
 			Swal.fire({
 				title: 'Yakin?',
 				text: 'Apakah pegawai ini tidak hadir hari ini?',
@@ -148,8 +163,8 @@ const AbsensiTable = ({ uid }) => {
 			}).then((result) => {
 				if (result.isConfirmed) {
 					setDoc(doc(db, `pegawai/${uid}/presensi`, now), {
-						date: date.toISOString(),
-						day: tampilTanggal,
+						tanggal: date.toISOString(),
+						hari: tampilTanggal,
 					});
 
 					Swal.fire('Berhasil!', 'Telah menyatakan pegawai tidak hadir hari ini.', 'success').then(() =>
@@ -216,12 +231,12 @@ const AbsensiTable = ({ uid }) => {
 							buttonText='Export Excel'
 							className='cursor-pointer inline-flex rounded-md bg-green-600 px-4 py-2 font-semibold text-sm text-white'
 						/>
-						{/* <button
+						<button
 							onClick={deleteAbsen}
 							className='cursor-pointer inline-flex rounded-md bg-red-600 px-4 py-2 font-semibold text-sm text-white'
 						>
 							Delete Absensi Bulan Ini
-						</button> */}
+						</button>
 					</div>
 				</div>
 			</div>
@@ -235,10 +250,10 @@ const AbsensiTable = ({ uid }) => {
 								<table className='w-full' id='table-pegawai'>
 									<thead>
 										<tr className='text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-200 dark:text-gray-400 dark:bg-gray-800'>
-											{/* <th className='px-4 py-3'>Hari-Ke</th> */}
+											<th className='px-4 py-3'>Hari-Ke</th>
 											<th className='px-4 py-3'>Hari/Tanggal Absensi</th>
 											<th className='px-6 py-3'>Masuk</th>
-											<th className='px-6 py-3'>Keluar</th>
+											<th className='px-6 py-3'>pulang</th>
 											<th className='px-4 py-3'>Hadir</th>
 											<th className='px-4 py-3'>Tidak Hadir</th>
 											<th className='px-6 py-3'>Keterangan</th>
@@ -246,76 +261,112 @@ const AbsensiTable = ({ uid }) => {
 										</tr>
 									</thead>
 									<tbody className='bg-white divide-y dark:divide-gray-700 dark:bg-gray-800'>
-										{absensi.map((absen, i) => {
-											{
-												absen.masuk != null && absen.keluar != null ? (hadir += 1) : hadir;
-												absen.masuk == null && absen.keluar == null ? (tidakHadir += 1) : tidakHadir;
-												// absen.masuk != null && absen.keluar == null ? (izin += 1) : izin;
-												const num = absen.id.split('-');
-												numBulan = parseInt(num[0]);
-											}
-											return (
-												<>
-													{month + 1 == numBulan ? (
-														<tr
-															key={i}
-															className='bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400'
-														>
-															{/* <td className='px-4 py-3'>
-																<div className='ml-4 text-sm'>
-																	<p className='font-semibold'>{i + 1}</p>
-																</div>
-															</td> */}
-															<td className='px-4 py-3'>
-																<div className='text-sm'>
+										<>
+											{Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
+												{
+													{
+														absensi[day - 1] != null
+															? absensi[day - 1].masuk != null && absensi[day - 1].pulang != null
+																? (hadir += 1)
+																: hadir
+															: hadir;
+
+														absensi[day - 1] != null
+															? absensi[day - 1].masuk == null && absensi[day - 1].pulang == null
+																? (tidakHadir += 1)
+																: tidakHadir
+															: tidakHadir;
+														// absensi[day - 1].masuk != null && absensi[day - 1].pulang == null ? izin + 1 : izin;
+														const num = absensi[day - 1] != null ? absensi[day - 1].id.split('-') : 0;
+														numBulan = parseInt(num[0]);
+														numHari = parseInt(num[1]);
+													}
+												}
+
+												return (
+													<tr
+														key={day}
+														className='bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400'
+													>
+														<td className='px-4 py-3'>
+															<div className='ml-4 text-sm'>
+																<p className='font-semibold'>{day}</p>
+															</div>
+														</td>
+														{absensi[day - 1] != null && month + 1 == numBulan ? (
+															<>
+																<td className='px-4 py-3'>
+																	<div className='text-sm'>
+																		<div>
+																			<p className='font-semibold'>
+																				{month + 1 == numBulan && numHari == day - 1
+																					? absensi[day - 1].hari == null
+																						? absensi[day - 1].masuk.hari
+																						: absensi[day - 1].hari
+																					: '-'}
+																			</p>
+																		</div>
+																	</div>
+																</td>
+																<td className='px-6 py-3 text-sm'>
 																	<div>
-																		<p className='font-semibold'>
-																			{absen.hari == null ? absen.masuk.hari : absen.hari}
+																		<p>
+																			{absensi[day - 1].masuk != null && absensi[day - 1].masuk != ''
+																				? absensi[day - 1].masuk.jam
+																				: '-'}
 																		</p>
 																	</div>
-																</div>
-															</td>
-															<td className='px-6 py-3 text-sm'>
-																<div>
-																	<p>{absen.masuk != null && absen.masuk != '' ? absen.masuk.jam : '-'}</p>
-																</div>
-															</td>
-															<td className='px-6 py-3 text-sm'>
-																<div>
-																	<p>{absen.keluar != null && absen.keluar != '' ? absen.keluar.jam : '-'}</p>
-																</div>
-															</td>
-															<td className='px-4 py-3'>
-																<div className='ml-4 text-sm'>
-																	<p>{absen.masuk != null && absen.keluar != null ? '1' : '0'}</p>
-																</div>
-															</td>
-															<td className='px-4 py-3'>
-																<div className='ml-8 text-sm'>
-																	<p>{absen.masuk == null && absen.keluar == null ? '1' : '0'}</p>
-																</div>
-															</td>
-															<td className='px-6 py-3 text-sm font-semibold'>
-																<div>
-																	<p>
-																		{absen.masuk != null && absen.masuk != '' ? absen.masuk.keterangan : 'Tidak Hadir'}
-																	</p>
-																</div>
-															</td>
-															{/* <td className='px-4 py-3'>
+																</td>
+																<td className='px-6 py-3 text-sm'>
+																	<div>
+																		<p>
+																			{absensi[day - 1].pulang != null && absensi[day - 1].pulang != ''
+																				? absensi[day - 1].pulang.jam
+																				: '-'}
+																		</p>
+																	</div>
+																</td>
+																<td className='px-4 py-3'>
+																	<div className='ml-4 text-sm'>
+																		<p>
+																			{absensi[day - 1].masuk != null && absensi[day - 1].pulang != null ? '1' : '0'}
+																		</p>
+																	</div>
+																</td>
+																<td className='px-4 py-3'>
+																	<div className='ml-8 text-sm'>
+																		<p>
+																			{absensi[day - 1].masuk == null && absensi[day - 1].pulang == null ? '1' : '0'}
+																		</p>
+																	</div>
+																</td>
+																<td className='px-6 py-3 text-sm font-semibold'>
+																	<div>
+																		<p>
+																			{absensi[day - 1].masuk != null && absensi[day - 1].masuk != ''
+																				? absensi[day - 1].masuk.keterangan
+																				: 'Tidak Hadir'}
+																		</p>
+																	</div>
+																</td>
+															</>
+														) : (
+															<tr>
+																<td>-</td>
+															</tr>
+														)}
+														{/* <td className='px-4 py-3'>
 														<div className='ml-2 text-sm'>
-															<p>{absen.masuk != null && absen.keluar == null ? 1 : 0}</p>
+															<p>{absen.masuk != null && absen.pulang == null ? 1 : 0}</p>
 														</div>
 													</td> */}
-														</tr>
-													) : (
-														''
-													)}
-												</>
-											);
-										})}
+													</tr>
+												);
+											})}
+										</>
+
 										<tr className=' dark:bg-gray-900 bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400'>
-											<td colSpan={2} className='px-4 py-3'>
+											<td colSpan={3} className='px-4 py-3'>
 												<div className='ml-2 text-sm'></div>
 											</td>
 											<td className='px-4 py-3'>
@@ -353,7 +404,7 @@ const AbsensiTable = ({ uid }) => {
 							)}
 						</div>
 						<p className='text-red-500 text-xs italic py-2'>
-							*Notes : Dinyatakan hadir apabila telah melakukan absen masuk dan absen keluar
+							*Notes : Dinyatakan hadir apabila telah melakukan absen masuk dan absen pulang
 						</p>
 					</div>
 				)}
@@ -361,9 +412,9 @@ const AbsensiTable = ({ uid }) => {
 			<Link href='/absensi'>
 				<a className='cursor-pointer inline-flex rounded bg-red-600 px-4 py-2 text-white text-xs'>Kembali</a>
 			</Link>
-			{/* <div className='cursor-pointer inline-flex rounded ml-2 bg-blue-600 px-4 py-2 text-white text-xs'>
-				Total Records : { absensi.length}
-			</div> */}
+			<div className='cursor-pointer inline-flex rounded ml-2 bg-blue-600 px-4 py-2 text-white text-xs'>
+				Total Records : {absensi.length}
+			</div>
 			<button
 				onClick={setAbsen}
 				className='cursor-pointer inline-flex rounded ml-2 bg-yellow-500 px-4 py-2 text-black text-xs'

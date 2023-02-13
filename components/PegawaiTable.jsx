@@ -105,7 +105,7 @@ const PegawaiTable = () => {
 														{emp.role}
 													</span>
 												</td> */}
-												<td className='px-4 py-3 text-sm'>{emp.pekerjaan}</td>
+												<td className='px-4 py-3 text-sm'>{emp.jabatan}</td>
 											</tr>
 										);
 									})}
